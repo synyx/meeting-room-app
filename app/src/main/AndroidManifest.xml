@@ -18,17 +18,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity
-            android:name="de.synyx.android.meeroo.screen.login.LoginActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="@string/app_name"
-            android:screenOrientation="sensorLandscape"/>
-
         <activity android:name="de.synyx.android.meeroo.screen.main.MainActivity"
             android:theme="@style/AppThemeDark"/>
 
         <activity
-            android:name=".screen.login.mvvm.MVVMLoginActivity"
+            android:name=".screen.login.LoginActivity"
             android:theme="@style/LoginTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
