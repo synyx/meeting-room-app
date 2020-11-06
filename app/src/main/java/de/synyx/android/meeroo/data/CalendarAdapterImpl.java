@@ -38,6 +38,7 @@ import static de.synyx.android.meeroo.util.rx.CursorIterable.fromCursor;
 public class CalendarAdapterImpl implements CalendarAdapter {
 
     private static final String RESSOURCE_SUFFIX = "*@resource.calendar.google.com";
+    public static final int COLUMN_INDEX_ROOM_DISPLAY_NAME = 3;
 
     private final CalendarModeService calendarModeService;
     private final ContentResolver contentResolver;
@@ -72,12 +73,13 @@ public class CalendarAdapterImpl implements CalendarAdapter {
         return
             Observable.fromIterable(fromCursor(loadRoomCalendars(visibleOnly))) //
             .doAfterNext(closeCursorIfLast()) //
-            .map(toRoomCalendar());
+            .map(toRoomCalendar(calendarModeService.getPrefCalenderMode()));
     }
 
 
     @Override
     public Maybe<RoomCalendarModel> loadRoom(long id) {
+
 
         Cursor cursor = loadRoomCalendarById(id);
 
@@ -85,7 +87,7 @@ public class CalendarAdapterImpl implements CalendarAdapter {
             return Maybe.empty();
         }
 
-        return Maybe.just(cursor).map(toRoomCalendar());
+        return Maybe.just(cursor).map(toRoomCalendar(calendarModeService.getPrefCalenderMode()));
     }
 
 
@@ -141,11 +143,11 @@ public class CalendarAdapterImpl implements CalendarAdapter {
 
 
     @NonNull
-    private static Function<Cursor, RoomCalendarModel> toRoomCalendar() {
+    private static Function<Cursor, RoomCalendarModel> toRoomCalendar(CalendarMode calendarMode) {
 
         return
             cursor -> {
-            String namePlusCapacity = getNameFrom(cursor);
+            String namePlusCapacity = getNameFrom(cursor, calendarMode);
             String name = RegexMatcher.removeNumberInBracketsFromString(namePlusCapacity);
             Integer capacity = RegexMatcher.getFirstNumberInBracketsFromString(namePlusCapacity);
 
@@ -200,12 +202,15 @@ public class CalendarAdapterImpl implements CalendarAdapter {
     }
 
 
-    private static String getNameFrom(Cursor cursor) {
+    private static String getNameFrom(Cursor cursor, CalendarMode calendarMode) {
 
-        String name = cursor.getString(cursor.getColumnIndex(CalendarContract.Calendars.NAME));
-
-        return name == null //
-            ? cursor.getString(cursor.getColumnIndex(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME)) //
-            : name;
+        if (calendarMode == CalendarMode.CALENDAR) {
+            return cursor.getString(COLUMN_INDEX_ROOM_DISPLAY_NAME);
+        } else {
+            String name = cursor.getString(cursor.getColumnIndex(CalendarContract.Calendars.NAME));
+            return name == null //
+                    ? cursor.getString(cursor.getColumnIndex(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME)) //
+                    : name;
+        }
     }
 }
