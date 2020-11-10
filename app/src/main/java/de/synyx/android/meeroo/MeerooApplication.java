@@ -2,15 +2,12 @@ package de.synyx.android.meeroo;
 
 import android.app.Application;
 
-import android.content.SharedPreferences;
-
-import android.preference.PreferenceManager;
-
+import de.synyx.android.meeroo.business.calendar.CalendarModeService;
 import de.synyx.android.meeroo.config.MainConfig;
 import de.synyx.android.meeroo.config.Registry;
 import de.synyx.android.meeroo.preferences.PreferencesService;
-import de.synyx.android.meeroo.preferences.PreferencesServiceImpl;
-import de.synyx.android.meeroo.screen.login.LoginConfig;
+import de.synyx.android.meeroo.screen.login.LoginViewModelFactory;
+import de.synyx.android.meeroo.util.proxy.PermissionManager;
 import de.synyx.android.meeroo.util.proxy.ProxyConfig;
 
 
@@ -23,7 +20,14 @@ public class MeerooApplication extends Application {
     public void onCreate() {
 
         super.onCreate();
+
+        // TODO: initialize services directly here
         initConfig();
+
+        // for login
+        Registry.put(LoginViewModelFactory.class,
+            new LoginViewModelFactory(Registry.get(PreferencesService.class), Registry.get(PermissionManager.class),
+                Registry.get(CalendarModeService.class)));
     }
 
 
@@ -32,6 +36,5 @@ public class MeerooApplication extends Application {
         DefaultConfig.init();
         MainConfig.init(this);
         ProxyConfig.init(this);
-        LoginConfig.init();
     }
 }

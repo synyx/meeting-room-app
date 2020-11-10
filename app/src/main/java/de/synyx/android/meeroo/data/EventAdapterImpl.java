@@ -168,12 +168,21 @@ public class EventAdapterImpl implements EventAdapter {
             DateTime begin = new DateTime(beginMillis);
             DateTime end = new DateTime(endMillis);
 
-            return new EventModel(eventId, title, begin, end, parseDuration(durationString));
+            Duration duration;
+            try {
+                duration = parseDuration(durationString);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+                long durationMillis = endMillis - beginMillis;
+                duration = new Duration(durationMillis);
+            }
+
+            return new EventModel(eventId, title, begin, end, duration);
         };
     }
 
 
-    private Duration parseDuration(String durationString) {
+    private Duration parseDuration(String durationString) throws NumberFormatException {
 
         if (durationString == null) {
             return null;
